@@ -294,6 +294,8 @@ Email/Message Content:
                 project_updated = update_project_fields(job_number, project_fields)
         
         # Add results to response
+        analysis['jobNumber'] = job_number
+        analysis['jobName'] = project['jobName']
         analysis['updateCreated'] = update_created
         analysis['projectUpdated'] = project_updated
         analysis['teamsChannelId'] = project['teamsChannelId']
