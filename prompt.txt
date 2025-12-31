@@ -49,6 +49,7 @@ COMPLETED → Job finished and delivered
    - "Picking this back up" → status: IN PROGRESS
    - "This is done/complete/finished/live" → status: COMPLETED
    - "Closing this off" → status: COMPLETED
+   – Move to IN PROGRESS from TRIAGE if there is an update.
    
    If no explicit status mention → return the current status (no change)
 
