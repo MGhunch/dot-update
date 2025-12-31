@@ -125,7 +125,7 @@ Return as JSON object with subject and body:
 
 {
   "subject": "UPDATE: [short update - max 8 words]",
-  "body": "[Longer update capturing more detail. Include stage/status changes, blockers, due dates as relevant. 2-3 sentences max.]<br><br><i>Please double check this update.</i><br><at>Michael Goldthorpe</at>"
+  "body": "[Longer update capturing more detail. Include stage/status changes, blockers, due dates as relevant. 2-3 sentences max.]<br><br><i>Please double check this update.</i>"
 }
 
 === CONFIDENCE LEVELS ===
