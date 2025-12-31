@@ -12,7 +12,7 @@ custom_http_client = httpx.Client(
     timeout=60.0,
     follow_redirects=True
 )
-
+  
 client = Anthropic(
     api_key=os.environ.get('ANTHROPIC_API_KEY'),
     http_client=custom_http_client
