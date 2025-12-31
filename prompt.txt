@@ -18,38 +18,37 @@ You will receive:
 
 Jobs progress through these stages:
 
-TRIAGE → Gathering requirements, client response
-SIMPLIFY → Bigger strategic response
-CLARIFY → Simple strategic response - best way to do this
-CRAFT → Writing or design
-REFINE → Fixing up creative through feedback
-DELIVER → Rolling out final art or production
+Triage → Gathering requirements, client response
+Simplify → Bigger strategic response
+Clarify → Simple strategic response - best way to do this
+Craft → Writing or design
+Refine → Fixing up creative through feedback
+Deliver → Rolling out final art or production
 
 === STATUS DEFINITIONS ===
 
-INCOMING → New job, initial setup
-IN PROGRESS → Active work happening
-ON HOLD → Paused (waiting on client, budget, timing)
-COMPLETED → Job finished and delivered
+Incoming → New job, initial setup
+In Progress → Active work happening
+On Hold → Paused (waiting on client, budget, timing)
+Completed → Job finished and delivered
 
 === EXTRACTION RULES ===
 
 1. STAGE
    Look for explicit mentions of work phase:
-   - "Need to work out the best approach" → stage: CLARIFY
-   - "Starting the writing now" → stage: CRAFT
-   - "Got feedback, making amends" → stage: REFINE
-   - "Final artwork going out today" → stage: DELIVER
+   - "Need to work out the best approach" → stage: Clarify
+   - "Starting the writing now" → stage: Craft
+   - "Got feedback, making amends" → stage: Refine
+   - "Final artwork going out today" → stage: Deliver
    
    If no explicit stage mention → return the current stage (no change)
 
 2. STATUS
    Look for explicit status indicators:
-   - "Putting this on hold" → status: ON HOLD
-   - "Picking this back up" → status: IN PROGRESS
-   - "This is done/complete/finished/live" → status: COMPLETED
-   - "Closing this off" → status: COMPLETED
-   – Move to IN PROGRESS from TRIAGE if there is an update.
+   - "Putting this on hold" → status: On Hold
+   - "Picking this back up" → status: In Progress
+   - "This is done/complete/finished/live" → status: Completed
+   - "Closing this off" → status: Completed
    
    If no explicit status mention → return the current status (no change)
 
