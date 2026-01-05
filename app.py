@@ -50,6 +50,21 @@ def get_working_days_from_today(days=5):
     return current.isoformat()
 
 
+def extract_team_id_from_url(channel_url):
+    """Extract the groupId (Team ID) from a Teams channel URL"""
+    if not channel_url:
+        return None
+    try:
+        # Look for groupId= in the URL
+        import re
+        match = re.search(r'groupId=([a-f0-9-]+)', channel_url)
+        if match:
+            return match.group(1)
+        return None
+    except:
+        return None
+
+
 def lookup_job_in_airtable(job_number):
     """Look up a job by job number in Airtable Projects table"""
     if not AIRTABLE_API_KEY:
@@ -78,13 +93,19 @@ def lookup_job_in_airtable(job_number):
         record_id = record['id']
         fields = record['fields']
         
+        # Extract Team ID from Channel URL
+        channel_url = fields.get('Channel Url', '')
+        team_id = extract_team_id_from_url(channel_url)
+        
         project_info = {
             'recordId': record_id,
             'projectName': fields.get('Project Name', 'Unknown'),
             'stage': fields.get('Stage', 'Unknown'),
             'status': fields.get('Status', 'Unknown'),
             'withClient': fields.get('With Client?', False),
-            'currentUpdate': fields.get('Update', 'None')
+            'currentUpdate': fields.get('Update', 'None'),
+            'channelId': fields.get('Teams Channel ID', None),
+            'teamId': team_id
         }
         
         return record_id, project_info, None
@@ -286,6 +307,8 @@ Current job data:
             'blockerNote': analysis.get('blockerNote'),
             'confidence': analysis.get('confidence', 'MEDIUM'),
             'confidenceNote': analysis.get('confidenceNote'),
+            'channelId': project_info.get('channelId'),
+            'teamId': project_info.get('teamId'),
             'teamsMessage': analysis.get('teamsMessage', {
                 'subject': f'UPDATE: {job_number}',
                 'body': update_summary
