@@ -191,7 +191,7 @@ def update():
     """Process job updates - parse email, write to Airtable, return result"""
     try:
         data = request.get_json()
-        email_content = data.get('emailContent', '')
+        email_content = data.get('emailContent') or data.get('message', '')
         job_number = data.get('jobNumber', '')
         
         if not email_content:
