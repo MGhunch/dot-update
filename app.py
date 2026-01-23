@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify 
+from flask_cors import CORS
 from anthropic import Anthropic
 import httpx
 import json
@@ -6,6 +7,7 @@ import os
 from datetime import datetime, date, timedelta
 
 app = Flask(__name__)
+CORS(app)
 
 # Custom HTTP client for Anthropic
 custom_http_client = httpx.Client(
@@ -194,6 +196,9 @@ def update():
         email_content = data.get('emailContent') or data.get('message', '')
         job_number = data.get('jobNumber', '')
         
+        print(f"[update] Received request for job: {job_number}")
+        print(f"[update] Email content length: {len(email_content)}")
+        
         if not email_content:
             return jsonify({
                 'success': False,
@@ -209,9 +214,11 @@ def update():
             }), 400
         
         # Step 1: Look up job in Airtable
+        print(f"[update] Looking up job in Airtable...")
         job_record_id, project_info, lookup_error = lookup_job_in_airtable(job_number)
         
         if lookup_error:
+            print(f"[update] Lookup error: {lookup_error}")
             return jsonify({
                 'success': False,
                 'failReason': lookup_error,
@@ -221,6 +228,8 @@ def update():
                     'body': f'Could not log update - {lookup_error}'
                 }
             })
+        
+        print(f"[update] Found project: {project_info['projectName']}")
         
         # Step 2: Build context for Claude
         today = date.today()
@@ -237,6 +246,7 @@ Current job data:
 """
         
         # Step 3: Call Claude with Update prompt
+        print(f"[update] Calling Claude to analyze update...")
         response = client.messages.create(
             model='claude-sonnet-4-20250514',
             max_tokens=1500,
@@ -252,11 +262,14 @@ Current job data:
         content = strip_markdown_json(content)
         analysis = json.loads(content)
         
+        print(f"[update] Claude analysis: {analysis.get('updateSummary', 'No summary')}")
+        
         # Ensure update_due is always set
         update_due = analysis.get('updateDue') or get_working_days_from_today(5)
         update_summary = analysis.get('updateSummary', '')
         
         # Step 4: Write update to Airtable Updates table
+        print(f"[update] Writing update to Airtable...")
         update_record_id, write_error = write_update_to_airtable(
             job_record_id, 
             update_summary, 
@@ -264,6 +277,7 @@ Current job data:
         )
         
         if write_error:
+            print(f"[update] Write error: {write_error}")
             return jsonify({
                 'success': False,
                 'failReason': write_error,
@@ -273,6 +287,8 @@ Current job data:
                     'body': f'Could not write update - {write_error}'
                 }
             })
+        
+        print(f"[update] Update written successfully: {update_record_id}")
         
         # Step 5: Update project record if stage/status/withClient changed
         new_stage = analysis.get('stage')
@@ -285,6 +301,7 @@ Current job data:
         with_client_to_update = new_with_client if new_with_client != project_info['withClient'] else None
         
         if stage_to_update or status_to_update or with_client_to_update is not None:
+            print(f"[update] Updating project record...")
             update_project_in_airtable(
                 job_record_id,
                 stage=stage_to_update,
@@ -293,6 +310,7 @@ Current job data:
             )
         
         # Step 6: Return success with Teams message
+        print(f"[update] Complete! Returning success.")
         return jsonify({
             'success': True,
             'jobNumber': job_number,
@@ -316,6 +334,7 @@ Current job data:
         })
         
     except json.JSONDecodeError as e:
+        print(f"[update] JSON decode error: {e}")
         return jsonify({
             'success': False,
             'failReason': f'Claude returned invalid JSON: {str(e)}',
@@ -326,6 +345,9 @@ Current job data:
             }
         }), 500
     except Exception as e:
+        print(f"[update] Error: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             'success': False,
             'failReason': f'Internal error: {str(e)}',
